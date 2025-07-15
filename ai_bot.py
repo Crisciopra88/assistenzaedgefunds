@@ -35,8 +35,65 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Ciao! Sono il tuo assistente AI. Fammi una domanda.")
 
+import os
+import json
+import re
+
+KNOWLEDGE_FILE = "knowledge.json"
+
+# 🔹 Salva un nuovo concetto nel file JSON
+def save_knowledge(question, answer):
+    if not os.path.exists(KNOWLEDGE_FILE):
+        with open(KNOWLEDGE_FILE, "w") as f:
+            json.dump([], f)
+
+    with open(KNOWLEDGE_FILE, "r") as f:
+        data = json.load(f)
+
+    data.append({"domanda": question.strip(), "risposta": answer.strip()})
+
+    with open(KNOWLEDGE_FILE, "w") as f:
+        json.dump(data, f, indent=2)
+
+# 🔹 Comando /learn per insegnare un nuovo concetto
+async def learn_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text
+
+    # Cerca il formato: Domanda: ... Risposta: ...
+    match = re.search(r"Domanda:\s*(.+?)\nRisposta:\s*(.+)", text, re.DOTALL)
+    if match:
+        question = match.group(1).strip()
+        answer = match.group(2).strip()
+
+        save_knowledge(question, answer)
+        await update.message.reply_text("✅ Concetto salvato!")
+    else:
+        await update.message.reply_text("❌ Formato non valido.\nUsa:\n/learn\nDomanda: ...\nRisposta: ...")
+
+# 🔹 Comando /memoria per leggere i concetti appresi
+async def memoria_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not os.path.exists(KNOWLEDGE_FILE):
+        await update.message.reply_text("🧠 La memoria è ancora vuota.")
+        return
+
+    with open(KNOWLEDGE_FILE, "r") as f:
+        data = json.load(f)
+
+    if not data:
+        await update.message.reply_text("🧠 La memoria è ancora vuota.")
+        return
+
+    message = "📚 Ecco cosa ho imparato:\n"
+    for i, item in enumerate(data, start=1):
+        message += f"{i}. *{item['domanda']}* → {item['risposta']}\n"
+
+    await update.message.reply_text(message, parse_mode="Markdown")
+
+
 if __name__ == '__main__':
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
+    app.add_handler(CommandHandler("learn", learn_command))
+    app.add_handler(CommandHandler("memoria", memoria_command))
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     print("🤖 Bot in funzione...")
