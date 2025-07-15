@@ -19,7 +19,7 @@ async def ask_openai(message):
         )
         return response['choices'][0]['message']['content'].strip()
     except Exception:
-        return "Errore nell'elaborazione della risposta. Contatteremo il nostro umano."
+        return "Non sono ancora in grado di rispondere a questa domanda, contatto un operatore. Ti risponderà qualcuno il prima possibile"
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_message = update.message.text
