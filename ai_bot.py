@@ -97,4 +97,22 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     print("🤖 Bot in funzione...")
-    app.run_polling()
+    from telegram.ext import Application
+
+PORT = int(os.environ.get("PORT", "8080"))
+
+if __name__ == "__main__":
+    app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("learn", learn_command))
+    app.add_handler(CommandHandler("memoria", memoria_command))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+
+    print("🤖 Bot webhook in avvio...")
+
+    app.run_webhook(
+        listen="0.0.0.0",
+        port=PORT,
+        webhook_url=os.environ.get("WEBHOOK_URL"),
+    )
+
