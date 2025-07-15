@@ -1,0 +1,10 @@
+{
+  "services": {
+    "telegram-bot": {
+      "startCommand": "python ai_bot.py",
+      "env": {
+        "PORT": "8080"
+      }
+    }
+  }
+}
