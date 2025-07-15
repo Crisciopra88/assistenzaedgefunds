@@ -33,7 +33,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=chat_id, text=reply)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Ciao! Sono il tuo assistente AI. Fammi una domanda.")
+    await update.message.reply_text("Bevenuto nell'assistenza di EdgeFunds, come posso aiutarti?")
 
 import os
 import json
