@@ -1,19 +1,22 @@
 import requests
 from bs4 import BeautifulSoup
 
+URL = "https://ftmo.com/it/faq/"
+OUTPUT_FILE = "ftmo_faq.txt"
+
 def scrape_ftmo_faq():
-    url = "https://ftmo.com/it/faq/"
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, "html.parser")
+    print("🔍 Sto raccogliendo le domande e risposte da FTMO...")
+    response = requests.get(URL)
+    soup = BeautifulSoup(response.text, 'html.parser')
 
-    faq_data = []
-    items = soup.select(".elementor-accordion .elementor-tab-title")
+    faqs = soup.select('.elementor-accordion-item')  # Dipende dalla struttura del sito
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+        for faq in faqs:
+            question = faq.select_one('.elementor-tab-title').get_text(strip=True)
+            answer = faq.select_one('.elementor-tab-content').get_text(strip=True)
+            f.write(f"Q: {question}\nA: {answer}\n\n")
 
-    for item in items:
-        question = item.get_text(strip=True)
-        answer_element = item.find_next_sibling("div")
-        if answer_element:
-            answer = answer_element.get_text(separator="\n", strip=True)
-        else:
-            answer = "Nessuna risposta trovata."
-        faq_data.append(f"Domanda: {question}\nRisposta: {answer}\n"_
+    print(f"✅ Fatto! File salvato in: {OUTPUT_FILE}")
+
+if __name__ == "__main__":
+    scrape_ftmo_faq()
