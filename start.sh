@@ -1,1 +1,1 @@
-python ai_bot.py
+python scraper.py
